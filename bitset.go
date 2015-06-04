@@ -36,28 +36,28 @@ func New(len int) *BitSet {
 	return &BitSet{v: make([]uint64, nw), nb: nb}
 }
 
-// Set sets the bit at index i to b.
-func (s *BitSet) Set(i int, b bool) {
-	if b == true {
-		s.v[i/bpw] |= 1 << uint(i%bpw)
-	} else {
-		s.v[i/bpw] &= ^(1 << uint(i%bpw))
-	}
+// Set sets the bit at index i.
+func (s *BitSet) Set(i int) *BitSet {
+	s.v[i/bpw] |= 1 << uint(i%bpw)
+	return s
+}
+
+// Clear clears the bit at index i.
+func (s *BitSet) Clear(i int) *BitSet {
+	s.v[i/bpw] &= ^(1 << uint(i%bpw))
+	return s
 }
 
 // Get gets the bit at index i.
 func (s *BitSet) Get(i int) bool {
 	// FIXME: should we panic if i%bpw > nb ?
-	b := s.v[i/bpw] & (1 << uint(i%bpw))
-	if b == 0 {
-		return false
-	}
-	return true
+	return (s.v[i/bpw] & (1 << uint(i%bpw))) != 0
 }
 
 // Toggle inverts the bit at index i.
-func (s *BitSet) Toggle(i int) {
+func (s *BitSet) Toggle(i int) *BitSet {
 	s.v[i/bpw] ^= 1 << uint(i%bpw)
+	return s
 }
 
 // Len returns the number of bits in s.
@@ -82,17 +82,53 @@ func (s *BitSet) String() string {
 }
 
 // Copy makes a copy of s.
-func (s *BitSet) Copy() *BitSet {
+func (s *BitSet) Clone() *BitSet {
 	b := New(s.Len())
 	copy(b.v, s.v)
 	b.nb = s.nb
 	return b
 }
 
+// All returns true if all bits are set, false otherwise.
+func (s *BitSet) All() bool {
+	for _, e := range s.v[:len(s.v)-1] {
+		if e != ^uint64(0) {
+			return false
+		}
+	}
+	m := ^(^uint64(0) << uint(s.nb))
+	if s.v[len(s.v)-1]&m != m {
+		return false
+	}
+	return true
+}
+
+// Any returns true if any bit is set, false otherwise.
+func (s *BitSet) Any() bool {
+	for _, e := range s.v[:len(s.v)-1] {
+		if e != 0 {
+			return true
+		}
+	}
+	m := ^(^uint64(0) << uint(s.nb))
+	if s.v[len(s.v)-1]&m != 0 {
+		return true
+	}
+	return false
+}
+
+// Complement inverts all the bits of s.
+func (s *BitSet) Complement() *BitSet {
+	for i := 0; i < len(s.v); i++ {
+		s.v[i] = ^s.v[i]
+	}
+	return s
+}
+
 // Union stores in a the true bits from either a or b.
 // If the length of b is greater than the length of a,
 // a is extended to include all the extra bits from b.
-func (a *BitSet) Union(b *BitSet) {
+func (a *BitSet) Union(b *BitSet) *BitSet {
 	for i := 0; i < len(a.v) && i < len(b.v); i++ {
 		a.v[i] = a.v[i] | b.v[i]
 	}
@@ -103,12 +139,13 @@ func (a *BitSet) Union(b *BitSet) {
 	} else if len(b.v) == len(a.v) && b.nb > a.nb {
 		a.nb = b.nb
 	}
+	return a
 }
 
 // Insersect stores in a the true bits common to both a and b.
 // If the length of a is less than the length of b,
 // a is truncated.
-func (a *BitSet) Intersect(b *BitSet) {
+func (a *BitSet) Intersect(b *BitSet) *BitSet {
 	for i := 0; i < len(a.v) && i < len(b.v); i++ {
 		a.v[i] = a.v[i] & b.v[i]
 	}
@@ -118,18 +155,13 @@ func (a *BitSet) Intersect(b *BitSet) {
 	} else if len(a.v) == len(b.v) && b.nb < a.nb {
 		a.nb = b.nb
 	}
-}
-
-// Complement inverts all the bits of s.
-func (s *BitSet) Complement() {
-	for i := 0; i < len(s.v); i++ {
-		s.v[i] = ^s.v[i]
-	}
+	return a
 }
 
 // Difference stores in a the true bits present in a and not in b.
-func (a *BitSet) Difference(b *BitSet) {
+func (a *BitSet) Difference(b *BitSet) *BitSet {
 	for i := 0; i < len(a.v) && i < len(b.v); i++ {
 		a.v[i] = a.v[i] & ^b.v[i]
 	}
+	return a
 }

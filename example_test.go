@@ -19,9 +19,7 @@ import "fmt"
 
 func Example() {
 	s := New(6)
-	s.Set(2, true)
-	s.Set(3, true)
-	s.Set(5, true)
+	s.Set(2).Set(3).Set(5)
 	for i := 0; i < s.Len(); i++ {
 		fmt.Println(s.Get(i))
 	}
@@ -41,8 +39,8 @@ func Example() {
 func ExampleBitSet_Union() {
 	a := New(2)
 	b := New(4)
-	a.Set(0, true)
-	b.Set(3, true)
+	a.Set(0)
+	b.Set(3)
 	fmt.Println(a)
 	fmt.Println(b)
 	a.Union(b)
@@ -57,10 +55,10 @@ func ExampleBitSet_Union() {
 func ExampleBitSet_Intersect() {
 	a := New(4)
 	b := New(2)
-	a.Set(0, true)
-	a.Set(3, true)
-	b.Set(0, true)
-	b.Set(1, true)
+	a.Set(0)
+	a.Set(3)
+	b.Set(0)
+	b.Set(1)
 	fmt.Println(a)
 	fmt.Println(b)
 	a.Intersect(b)
@@ -74,11 +72,11 @@ func ExampleBitSet_Intersect() {
 
 func ExampleBitSet_Difference() {
 	a := New(3)
-	a.Set(0, true)
-	a.Set(1, true)
-	a.Set(2, true)
+	a.Set(0)
+	a.Set(1)
+	a.Set(2)
 	b := New(2)
-	b.Set(1, true)
+	b.Set(1)
 	a.Difference(b)
 	fmt.Println(a)
 
@@ -88,7 +86,7 @@ func ExampleBitSet_Difference() {
 
 func ExampleBitSet_Complement() {
 	a := New(3)
-	a.Set(1, true)
+	a.Set(1)
 	a.Complement()
 	fmt.Println(a)
 
@@ -98,7 +96,7 @@ func ExampleBitSet_Complement() {
 
 func ExampleBitSet_String() {
 	a := New(3)
-	a.Set(1, true)
+	a.Set(1)
 	fmt.Println(a) // fmt automatically calls String
 
 	// Output:

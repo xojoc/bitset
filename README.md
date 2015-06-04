@@ -19,10 +19,7 @@ import (
 func main() {
 	c := bitset.New(10)
 	// Set all prime numbers to true.
-	c.Set(1, true)
-	c.Set(2, true)
-	c.Set(4, true)
-	c.Set(6, true)
+	c.Set(1).Set(2).Set(4).Set(6)
 	c.Complement()
 	for i := 0; i < c.Len(); i++ {
 		if c.Get(i) == true {

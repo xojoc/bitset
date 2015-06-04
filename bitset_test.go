@@ -19,26 +19,21 @@ import "testing"
 
 func TestBitSet_Set(t *testing.T) {
 	s := New(bpw)
-	s.Set(1, true)
-	s.Set(bpw-1, true)
+	s.Set(1).Set(bpw - 1)
 	rs := "0100000000000000000000000000000000000000000000000000000000000001"
 	if s.String() != rs {
 		t.Errorf("string %q want %q", s, rs)
 	}
 
 	s = New(bpw + 1)
-	s.Set(1, true)
-	s.Set(bpw-1, true)
-	s.Set(bpw, true)
+	s.Set(1).Set(bpw - 1).Set(bpw)
 	rs = "01000000000000000000000000000000000000000000000000000000000000011"
 	if s.String() != rs {
 		t.Errorf("String %q want %q", s, rs)
 	}
 
 	s = New(1)
-	s.Set(0, true)
-	s.Set(0, false)
-	if s.Get(0) != false {
+	if s.Set(0).Clear(0).Get(0) != false {
 		t.Errorf("Get(0) %v want %v", s.Get(0), false)
 	}
 }
@@ -61,22 +56,59 @@ func TestBitSet_Len(t *testing.T) {
 }
 
 func TestBitSet_Toggle(t *testing.T) {
-	a := New(1)
-	a.Toggle(0)
+	a := New(1).Toggle(0)
 	if a.Get(0) != true {
 		t.Errorf("Get %v want %v", a.Get(0), true)
 	}
 }
 
-func TestBitSet_Copy(t *testing.T) {
-	a := New(3)
-	a.Set(1, true)
-	b := a.Copy()
+func TestBitSet_Clone(t *testing.T) {
+	a := New(3).Set(1)
+	b := a.Clone()
 	if a.Len() != b.Len() {
 		t.Errorf("Copy len %d want %d", b.Len(), a.Len())
 	}
 	if a.String() != b.String() {
 		t.Errorf("Copy string %q want %q", b, a)
+	}
+}
+
+func TestBitSet_All(t *testing.T) {
+	a := New(3).Set(0).Set(1).Set(2)
+	if a.All() != true {
+		t.Errorf("Get %v want %v", a.All(), true)
+	}
+
+	a = New(3).Set(1).Set(2)
+	if a.All() != false {
+		t.Errorf("Get %v want %v", a.All(), false)
+	}
+
+	a = New(bpw + 1)
+	for i := 0; i < bpw+1; i++ {
+		a.Set(i)
+	}
+	a.Clear(0)
+	if a.All() != false {
+		t.Errorf("Get %v want %v", a.All(), false)
+	}
+}
+
+func TestBitSet_Any(t *testing.T) {
+	a := New(3).Set(1)
+	if a.Any() != true {
+		t.Errorf("Get %v want %v", a.Any(), true)
+	}
+
+	a = New(3)
+	if a.Any() != false {
+		t.Errorf("Get %v want %v", a.Any(), false)
+	}
+
+	a = New(bpw + 1)
+	a.Set(0)
+	if a.Any() != true {
+		t.Errorf("Get %v want %v", a.Any(), true)
 	}
 }
 
@@ -105,8 +137,7 @@ func TestBitSet_Insersect(t *testing.T) {
 }
 
 func TestBitSet_Complement(t *testing.T) {
-	a := New(3)
-	a.Set(1, true)
+	a := New(3).Set(1)
 	a.Complement()
 	if a.String() != "101" {
 		t.Errorf("Complement %q want %q", a, "101")
