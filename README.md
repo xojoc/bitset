@@ -38,7 +38,6 @@ see [godoc](http://godoc.org/github.com/xojoc/bitset) for the complete documenta
  * Great API
  * 100% test coverage
  * [Great documentation](http://godoc.org/github.com/xojoc/bitset)
- * The only BitSet library for golang
 
 # Who?
 *bitset* was written by Alexandru cojocaru (http://xojoc.pw).
