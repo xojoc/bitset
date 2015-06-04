@@ -81,7 +81,7 @@ func (s *BitSet) String() string {
 	return str
 }
 
-// Copy makes a copy of s.
+// Clone makes a copy of s.
 func (s *BitSet) Clone() *BitSet {
 	b := New(s.Len())
 	copy(b.v, s.v)
