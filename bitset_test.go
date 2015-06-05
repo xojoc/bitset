@@ -159,3 +159,41 @@ func TestBitSet_ToggleAll(t *testing.T) {
 		t.Errorf("Complement %q want %q", a, "101")
 	}
 }
+
+func TestBitSet_Count(t *testing.T) {
+	a := New(3).Set(1)
+	if a.Count() != 1 {
+		t.Errorf("Count %d want %d", a.Count(), 1)
+	}
+
+	a = New(bpw*2 + 3).Set(0).Set(bpw).Set(bpw * 2).Set(bpw*2 + 2)
+	if a.Count() != 4 {
+		t.Errorf("Count %d want %d", a.Count(), 4)
+	}
+}
+
+func TestBitSet_Equal(t *testing.T) {
+	a := New(3).Set(1)
+	b := New(2).Set(1)
+	if a.Equal(b) != false {
+		t.Errorf("Equal %v want %v", a.Equal(b), false)
+	}
+
+	a = New(bpw + 5).Set(bpw - 1).Set(bpw).Set(bpw + 1)
+	b = New(bpw + 5).Set(bpw - 1).Set(bpw).Set(bpw + 1)
+	if a.Equal(b) != true {
+		t.Errorf("Equal %v want %v", a.Equal(b), true)
+	}
+
+	a = New(3).Set(0)
+	b = New(3).Set(1)
+	if a.Equal(b) != false {
+		t.Errorf("Equal %v want %v", a.Equal(b), false)
+	}
+
+	a = New(bpw + 5).Set(bpw)
+	b = New(bpw + 5).Set(bpw - 1)
+	if a.Equal(b) != false {
+		t.Errorf("Equal %v want %v", a.Equal(b), false)
+	}
+}
