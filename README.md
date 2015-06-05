@@ -28,6 +28,15 @@ func main() {
 	}
 }      
 ```
+Output:
+```
+1 is composite
+4 is composite
+6 is composite
+8 is composite
+9 is composite
+10 is composite
+```
 see [godoc](http://godoc.org/github.com/xojoc/bitset) for the complete documentation.
 
 # Why?
