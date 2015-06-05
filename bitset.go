@@ -67,7 +67,7 @@ func (s *BitSet) Set(i int) *BitSet {
 // Returns s.
 func (s *BitSet) SetAll() *BitSet {
 	for i := range s.v {
-		s.v[i] = 1
+		s.v[i] = ^uint64(0)
 	}
 	return s
 }
@@ -98,6 +98,15 @@ func (s *BitSet) Get(i int) bool {
 // Returns s.
 func (s *BitSet) Toggle(i int) *BitSet {
 	s.v[i/bpw] ^= 1 << uint(i%bpw)
+	return s
+}
+
+// Toggle inverts all the bits of s.
+// Returns s.
+func (s *BitSet) ToggleAll() *BitSet {
+	for i := range s.v {
+		s.v[i] = ^s.v[i]
+	}
 	return s
 }
 
@@ -166,6 +175,7 @@ func (s *BitSet) All() bool {
 			return false
 		}
 	}
+
 	m := maskLastBits(s.nb)
 	if s.v[len(s.v)-1]&m != m {
 		return false
@@ -190,15 +200,6 @@ func (s *BitSet) Any() bool {
 // None returns true if no bit is set, false otherwise.
 func (s *BitSet) None() bool {
 	return !s.Any()
-}
-
-// Complement inverts all the bits of s.
-// Returns s.
-func (s *BitSet) Complement() *BitSet {
-	for i := range s.v {
-		s.v[i] = ^s.v[i]
-	}
-	return s
 }
 
 // Union stores in a the true bits from either a or b.

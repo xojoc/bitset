@@ -88,7 +88,7 @@ func ExampleBitSet_Difference() {
 }
 
 func ExampleBitSet_Complement() {
-	a := New(3).Set(1).Complement()
+	a := New(3).Set(1).ToggleAll()
 	fmt.Println(a)
 
 	// Output:

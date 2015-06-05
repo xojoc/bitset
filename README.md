@@ -20,7 +20,7 @@ func main() {
 	c := bitset.New(10)
 	// Set all prime numbers to true.
 	c.Set(1).Set(2).Set(4).Set(6)
-	c.Complement()
+	c.ToggleAll()
 	for i := 0; i < c.Len(); i++ {
 		if c.Get(i) == true {
 			fmt.Printf("%d is composite\n", i+1)

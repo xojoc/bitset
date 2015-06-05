@@ -38,6 +38,22 @@ func TestBitSet_Set(t *testing.T) {
 	}
 }
 
+func TestBitSet_SetAll(t *testing.T) {
+	s := New(bpw*2 + 3)
+	s.SetAll()
+	if s.All() != true {
+		t.Errorf("Not all bits are set")
+	}
+}
+
+func TestBitSet_ClearAll(t *testing.T) {
+	s := New(bpw*2 + 3).Set(0).Set(bpw).Set(bpw + 1).Set(bpw*2 + 1)
+	s.ClearAll()
+	if s.Any() {
+		t.Errorf("Not all bits are cleared")
+	}
+}
+
 func TestBitSet_Len(t *testing.T) {
 	a := New(0)
 	if a.Len() != 0 {
@@ -138,7 +154,7 @@ func TestBitSet_Insersect(t *testing.T) {
 
 func TestBitSet_Complement(t *testing.T) {
 	a := New(3).Set(1)
-	a.Complement()
+	a.ToggleAll()
 	if a.String() != "101" {
 		t.Errorf("Complement %q want %q", a, "101")
 	}
