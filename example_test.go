@@ -35,6 +35,20 @@ func Example() {
 	// 001101
 }
 
+func Example_2() {
+	a := New(3).Set(1)
+	b := New(3).Set(0).Set(2)
+	c := a.Clone().Union(b)
+	fmt.Println(a)
+	fmt.Println(b)
+	fmt.Println(c)
+
+	// Output:
+	// 010
+	// 101
+	// 111
+}
+
 func ExampleBitSet_Union() {
 	a := New(2).Set(0)
 	b := New(4).Set(3)
