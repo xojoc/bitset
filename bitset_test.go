@@ -152,7 +152,7 @@ func TestBitSet_Insersect(t *testing.T) {
 	}
 }
 
-func TestBitSet_Complement(t *testing.T) {
+func TestBitSet_ToggleAll(t *testing.T) {
 	a := New(3).Set(1)
 	a.ToggleAll()
 	if a.String() != "101" {

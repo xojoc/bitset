@@ -101,7 +101,7 @@ func (s *BitSet) Toggle(i int) *BitSet {
 	return s
 }
 
-// Toggle inverts all the bits of s.
+// ToggleAll inverts all the bits of s.
 // Returns s.
 func (s *BitSet) ToggleAll() *BitSet {
 	for i := range s.v {
