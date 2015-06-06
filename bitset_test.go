@@ -18,18 +18,14 @@ package bitset
 import "testing"
 
 func TestBitSet_Set(t *testing.T) {
-	s := New(bpw)
-	s.Set(1).Set(bpw - 1)
-	rs := "0100000000000000000000000000000000000000000000000000000000000001"
-	if s.String() != rs {
-		t.Errorf("string %q want %q", s, rs)
+	s := New(bpw).Set(1).Set(bpw - 1)
+	if !s.Get(1) || !s.Get(bpw-1) {
+		t.Errorf("Can't Get(1) || Get(bpw-1)")
 	}
 
-	s = New(bpw + 1)
-	s.Set(1).Set(bpw - 1).Set(bpw)
-	rs = "01000000000000000000000000000000000000000000000000000000000000011"
-	if s.String() != rs {
-		t.Errorf("String %q want %q", s, rs)
+	s = New(bpw + 1).Set(1).Set(bpw - 1).Set(bpw)
+	if !s.Get(1) || !s.Get(bpw-1) || !s.Get(bpw) {
+		t.Errorf("Can't Get(1) || Get(bpw-1) || Get(bpw)")
 	}
 
 	s = New(1)

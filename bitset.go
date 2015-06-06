@@ -23,27 +23,33 @@
 
  BitSets are fixed-sized if you access an index outside of the bounds, panic will be called.
 
- Many methods return the BitSet they modify which enables chaining of operations.
+ Many methods return the BitSet they modify which enables chaining of operations
+ (please note that with the exception of New and Clone all methods do *not* return a new BitSet,
+ but the one that was modified).
 
  All methods are in place to avoid futile memory usage. If you want to keep
  the original BitSet simply Clone it.
 */
 package bitset
 
+import (
+	"bytes"
+)
+
 // Bit tricks: http://graphics.stanford.edu/~seander/bithacks.html
 
 // Bits per word
-const bpw int = 64
+const bpw int = 8 << (^uint(0)>>8&1 + ^uint(0)>>16&1 + ^uint(0)>>32&1)
 
 type BitSet struct {
 	// underlying vector
-	v []uint64
+	v []uint
 	// n bits in the last word
 	nb int
 }
 
-func maskLastBits(n int) uint64 {
-	return ^(^uint64(0) << uint(n))
+func maskLastBits(n int) uint {
+	return ^(^uint(0) << uint(n))
 }
 
 // New returns an initialized BitSet. All bits are set to false.
@@ -53,7 +59,7 @@ func New(len int) *BitSet {
 	}
 	nw := (len-1)/bpw + 1
 	nb := (len-1)%bpw + 1
-	return &BitSet{v: make([]uint64, nw), nb: nb}
+	return &BitSet{v: make([]uint, nw), nb: nb}
 }
 
 // Set sets the bit at index i.
@@ -67,7 +73,7 @@ func (s *BitSet) Set(i int) *BitSet {
 // Returns s.
 func (s *BitSet) SetAll() *BitSet {
 	for i := range s.v {
-		s.v[i] = ^uint64(0)
+		s.v[i] = ^uint(0)
 	}
 	return s
 }
@@ -132,15 +138,21 @@ func (s *BitSet) Count() int {
 
 // String returns a string representation of s.
 func (s *BitSet) String() string {
-	str := ""
+	b := bytes.NewBuffer(make([]byte, 0, s.Len()))
 	for i := 0; i < s.Len(); i++ {
+		str := ""
 		if s.Get(i) == true {
-			str += "1"
+			str = "1"
 		} else {
-			str += "0"
+			str = "0"
 		}
+		_, err := b.WriteString(str)
+		if err != nil {
+			return ""
+		}
+
 	}
-	return str
+	return b.String()
 }
 
 // Clone makes a copy of s.
@@ -171,7 +183,7 @@ func (a *BitSet) Equal(b *BitSet) bool {
 // All returns true if all bits are set, false otherwise.
 func (s *BitSet) All() bool {
 	for _, e := range s.v[:len(s.v)-1] {
-		if e != ^uint64(0) {
+		if e != ^uint(0) {
 			return false
 		}
 	}
