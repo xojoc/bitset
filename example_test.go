@@ -87,7 +87,17 @@ func ExampleBitSet_Difference() {
 	// 101
 }
 
-func ExampleBitSet_Complement() {
+func ExampleBitSet_SymmetricDifference() {
+	a := New(2).Set(0).Set(1)
+	b := New(3).Set(0).Set(2)
+	a.SymmetricDifference(b)
+	fmt.Println(a)
+
+	// Output:
+	// 011
+}
+
+func ExampleBitSet_ToggleAll() {
 	a := New(3).Set(1).ToggleAll()
 	fmt.Println(a)
 

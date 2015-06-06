@@ -32,8 +32,10 @@
 */
 package bitset
 
+/* FIXME: make sure leftover bits don't affect Count, Union, etc... */
+
 import (
-	"bytes"
+	_ "bytes"
 )
 
 // Bit tricks: http://graphics.stanford.edu/~seander/bithacks.html
@@ -124,35 +126,36 @@ func (s *BitSet) Len() int {
 	return (len(s.v)-1)*bpw + s.nb
 }
 
+func countBits(e uint) int {
+	c := 0
+	for e != 0 {
+		c++
+		e &= e - 1
+	}
+	return c
+}
+
 // Count counts the number of set bits.
 func (s *BitSet) Count() int {
 	c := 0
-	for _, e := range s.v {
-		for e != 0 {
-			c++
-			e &= e - 1
-		}
+	for _, e := range s.v[:len(s.v)-1] {
+		c += countBits(e)
 	}
+	c += countBits(s.v[len(s.v)-1] & maskLastBits(s.nb))
 	return c
 }
 
 // String returns a string representation of s.
 func (s *BitSet) String() string {
-	b := bytes.NewBuffer(make([]byte, 0, s.Len()))
+	b := make([]byte, s.Len())
 	for i := 0; i < s.Len(); i++ {
-		str := ""
 		if s.Get(i) == true {
-			str = "1"
+			b[i] = '1'
 		} else {
-			str = "0"
+			b[i] = '0'
 		}
-		_, err := b.WriteString(str)
-		if err != nil {
-			return ""
-		}
-
 	}
-	return b.String()
+	return string(b)
 }
 
 // Clone makes a copy of s.
@@ -256,4 +259,25 @@ func (a *BitSet) Difference(b *BitSet) *BitSet {
 		a.v[i] = a.v[i] & ^b.v[i]
 	}
 	return a
+}
+
+// SymmetricDifference stores in a the true bits which are either
+// in a or in b, but not in both.
+// Returns a.
+func (a *BitSet) SymmetricDifference(b *BitSet) *BitSet {
+	for i := 0; i < len(a.v) && i < len(b.v); i++ {
+		a.v[i] = a.v[i] ^ b.v[i]
+	}
+	if len(b.v) > len(a.v) {
+		a.v = append(a.v, b.v[len(a.v):]...)
+		a.nb = b.nb
+	} else if len(b.v) == len(a.v) && b.nb > a.nb {
+		a.nb = b.nb
+	}
+	return a
+}
+
+// IsSuperSet returns true if a is a super set of b, false otherwise.
+func (a *BitSet) IsSuperSet(b *BitSet) bool {
+	return false
 }

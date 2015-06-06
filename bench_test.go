@@ -77,3 +77,10 @@ func BenchmarkUnionBig(b *testing.B) {
 		a.Or(a, c)
 	}
 }
+
+func BenchmarkString(b *testing.B) {
+	a := New(100000)
+	for n := 0; n < b.N; n++ {
+		_ = a.String()
+	}
+}
