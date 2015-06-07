@@ -18,17 +18,17 @@ import (
 
 func main() {
         c := &bitset.BitSet{}
-	// Set all prime numbers to true.
+        // Set all prime numbers to true.
         c.Set(1)
         c.Set(2)
         c.Set(4)
         c.Set(6)
         c.ToggleRange(0,10)
-	for i := 0; i < c.Len(); i++ {
-		if c.Get(i) == true {
-			fmt.Printf("%d is composite\n", i+1)
-		}
-	}
+        for i := 0; i < c.Len(); i++ {
+                if c.Get(i) == true {
+                        fmt.Printf("%d is composite\n", i+1)
+                }
+        }
 }      
 ```
 Output:
