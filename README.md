@@ -25,7 +25,7 @@ func main() {
         c.Set(6)
         c.ToggleRange(0,10)
         for i := 0; i < c.Len(); i++ {
-                if c.Get(i) == true {
+                if c.Get(i) {
                         fmt.Printf("%d is composite\n", i+1)
                 }
         }
