@@ -16,19 +16,21 @@
 package bitset
 
 import (
-	"math/big"
+	_ "math/big"
 	"testing"
 )
 
 func BenchmarkSet(b *testing.B) {
-	s := New(1000)
+	len := 1000
+	s := &BitSet{}
 	for n := 0; n < b.N; n++ {
-		for i := 0; i < s.Len(); i++ {
+		for i := 0; i < len; i++ {
 			s.Set(i)
 		}
 	}
 }
 
+/*
 func BenchmarkSetBig(b *testing.B) {
 	len := 1000
 	s := big.NewInt(0)
@@ -84,3 +86,4 @@ func BenchmarkString(b *testing.B) {
 		_ = a.String()
 	}
 }
+*/

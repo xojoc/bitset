@@ -17,125 +17,157 @@ package bitset
 
 import "testing"
 
-func TestBitSet_Set(t *testing.T) {
-	s := New(bpw).Set(1).Set(bpw - 1)
-	if !s.Get(1) || !s.Get(bpw-1) {
-		t.Errorf("Can't Get(1) || Get(bpw-1)")
-	}
-
-	s = New(bpw + 1).Set(1).Set(bpw - 1).Set(bpw)
-	if !s.Get(1) || !s.Get(bpw-1) || !s.Get(bpw) {
-		t.Errorf("Can't Get(1) || Get(bpw-1) || Get(bpw)")
-	}
-
-	s = New(1)
-	if s.Set(0).Clear(0).Get(0) != false {
-		t.Errorf("Get(0) %v want %v", s.Get(0), false)
-	}
-}
-
-func TestBitSet_SetAll(t *testing.T) {
-	s := New(bpw*2 + 3)
-	s.SetAll()
-	if s.All() != true {
-		t.Errorf("Not all bits are set")
-	}
-}
-
-func TestBitSet_ClearAll(t *testing.T) {
-	s := New(bpw*2 + 3).Set(0).Set(bpw).Set(bpw + 1).Set(bpw*2 + 1)
-	s.ClearAll()
-	if s.Any() {
-		t.Errorf("Not all bits are cleared")
-	}
-}
-
-func TestBitSet_Len(t *testing.T) {
-	a := New(0)
-	if a.Len() != 0 {
-		t.Errorf("Len %d want %d", a.Len(), 0)
-	}
-
-	a = New(bpw)
-	if a.Len() != bpw {
-		t.Errorf("Len %d want %d", a.Len(), bpw)
-	}
-
-	a = New(bpw + 1)
-	if a.Len() != bpw+1 {
-		t.Errorf("Len %d want %d", a.Len(), bpw+1)
-	}
-}
-
-func TestBitSet_Toggle(t *testing.T) {
-	a := New(1).Toggle(0)
-	if a.Get(0) != true {
-		t.Errorf("Get %v want %v", a.Get(0), true)
-	}
-}
-
 func TestBitSet_Clone(t *testing.T) {
-	a := New(3).Set(1)
+	a := &BitSet{}
+	a.Set(1)
 	b := a.Clone()
-	if a.Len() != b.Len() {
-		t.Errorf("Copy len %d want %d", b.Len(), a.Len())
-	}
 	if a.String() != b.String() {
 		t.Errorf("Copy string %q want %q", b, a)
 	}
 }
 
-func TestBitSet_All(t *testing.T) {
-	a := New(3).Set(0).Set(1).Set(2)
-	if a.All() != true {
-		t.Errorf("Get %v want %v", a.All(), true)
+func TestBitSet_String(t *testing.T) {
+	s := &BitSet{}
+	str := s.String()
+	if str != "" {
+		t.Errorf("String %q want %q", s.String(), "")
 	}
 
-	a = New(3).Set(1).Set(2)
-	if a.All() != false {
-		t.Errorf("Get %v want %v", a.All(), false)
+	s.Set(1)
+	str = s.String()
+	if str != "01" {
+		t.Errorf("String %q want %q", s.String(), "01")
+	}
+}
+func TestBitSet_Set(t *testing.T) {
+	s := &BitSet{}
+	s.Set(1)
+	s.Set(bpw - 1)
+	if !s.Get(1) || !s.Get(bpw-1) {
+		t.Errorf("Can't Get(1) || Get(bpw-1)")
 	}
 
-	a = New(bpw + 1)
-	for i := 0; i < bpw+1; i++ {
-		a.Set(i)
+	s = &BitSet{}
+	s.Set(1)
+	s.Set(bpw*3 - 1)
+	s.Set(bpw * 3)
+	if !s.Get(1) || !s.Get(bpw*3-1) || !s.Get(bpw*3) {
+		t.Errorf("Can't Get(1) || Get(bpw*3-1) || Get(bpw*3)")
 	}
-	a.Clear(0)
-	if a.All() != false {
-		t.Errorf("Get %v want %v", a.All(), false)
+}
+
+func TestBitSet_Clear(t *testing.T) {
+	s := &BitSet{}
+	s.Set(0)
+	s.Clear(0)
+	if s.Get(0) != false {
+		t.Errorf("Get(0) %v want %v", s.Get(0), false)
+	}
+}
+
+func TestBitSet_Toggle(t *testing.T) {
+	a := &BitSet{}
+	a.Toggle(0)
+	if a.Get(0) != true {
+		t.Errorf("Get %v want %v", a.Get(0), true)
+	}
+
+	a.Toggle(0)
+	if a.Get(0) != false {
+		t.Errorf("Get %v want %v", a.Get(0), false)
+	}
+}
+
+func TestBitSet_Len(t *testing.T) {
+	a := &BitSet{}
+	if a.Len() != 0 {
+		t.Errorf("Len %d want %d", a.Len(), 0)
+	}
+
+	a.Set(0)
+	if a.Len() != 1 {
+		t.Errorf("Len %d want %d", a.Len(), 1)
+	}
+
+	a.Set(999)
+	if a.Len() != 1000 {
+		t.Errorf("Len %d want %d", a.Len(), 1000)
+	}
+
+	a.Toggle(999)
+	if a.Len() != 1 {
+		t.Errorf("Len %d want %d", a.Len(), 1)
 	}
 }
 
 func TestBitSet_Any(t *testing.T) {
-	a := New(3).Set(1)
-	if a.Any() != true {
-		t.Errorf("Get %v want %v", a.Any(), true)
-	}
-
-	a = New(3)
+	a := &BitSet{}
 	if a.Any() != false {
 		t.Errorf("Get %v want %v", a.Any(), false)
 	}
-
-	a = New(bpw + 1)
-	a.Set(0)
+	a.Set(bpw*2 + 1)
 	if a.Any() != true {
 		t.Errorf("Get %v want %v", a.Any(), true)
 	}
 }
 
-func TestBitSet_Union(t *testing.T) {
-	a := New(2)
-	b := New(bpw + 1)
-	a.Union(b)
-	if a.Len() != b.Len() {
-		t.Errorf("Len %d want %d", a.Len(), b.Len())
+func TestBitSet_Cardinality(t *testing.T) {
+	a := &BitSet{}
+	if a.Cardinality() != 0 {
+		t.Errorf("Cardinality %d want %d", a.Cardinality(), 0)
 	}
-	if a.nb != b.nb {
-		t.Errorf("nb %d want %d", a.nb, b.nb)
+	a.Set(1)
+	if a.Cardinality() != 1 {
+		t.Errorf("Count %d want %d", a.Cardinality(), 1)
+	}
+	a.Set(bpw)
+	a.Set(bpw * 2)
+	a.Set(bpw*3 + 2)
+	if a.Cardinality() != 4 {
+		t.Errorf("Cardinality %d want %d", a.Cardinality(), 4)
 	}
 }
 
+func TestBitSet_SuperSet(t *testing.T) {
+	a := &BitSet{}
+	b := &BitSet{}
+	if a.SuperSet(b) != true {
+		t.Errorf("SuperSet %v want %v", a.SuperSet(b), true)
+	}
+	a.Set(1)
+	if a.SuperSet(b) != true {
+		t.Errorf("SuperSet %v want %v", a.SuperSet(b), true)
+	}
+	b.Set(0)
+	if a.SuperSet(b) != false {
+		t.Errorf("SuperSet %v want %v", a.SuperSet(b), false)
+	}
+	a.Set(0)
+	a.Set(bpw)
+	b.Set(bpw)
+	if a.SuperSet(b) != true {
+		t.Errorf("SuperSet %v want %v", a.SuperSet(b), true)
+	}
+}
+
+func TestBitSet_Me(t *testing.T) {
+}
+
+func TestBitSet_Union(t *testing.T) {
+	a := &BitSet{}
+	a.Set(0)
+	b := &BitSet{}
+	b.Set(2)
+	c := &BitSet{}
+	c.Set(0)
+	c.Set(2)
+	a.Union(b)
+	if a.Equal(c) != true {
+		t.Errorf("Equal %v want %v", a.Equal(c), true)
+	}
+}
+
+/*
 func TestBitSet_Insersect(t *testing.T) {
 	a := New(bpw + 1)
 	b := New(2)
@@ -145,26 +177,6 @@ func TestBitSet_Insersect(t *testing.T) {
 	}
 	if a.nb != b.nb {
 		t.Errorf("nb %d want %d", a.nb, b.nb)
-	}
-}
-
-func TestBitSet_ToggleAll(t *testing.T) {
-	a := New(3).Set(1)
-	a.ToggleAll()
-	if a.String() != "101" {
-		t.Errorf("Complement %q want %q", a, "101")
-	}
-}
-
-func TestBitSet_Count(t *testing.T) {
-	a := New(3).Set(1)
-	if a.Count() != 1 {
-		t.Errorf("Count %d want %d", a.Count(), 1)
-	}
-
-	a = New(bpw*2 + 3).Set(0).Set(bpw).Set(bpw * 2).Set(bpw*2 + 2)
-	if a.Count() != 4 {
-		t.Errorf("Count %d want %d", a.Count(), 4)
 	}
 }
 
@@ -193,3 +205,4 @@ func TestBitSet_Equal(t *testing.T) {
 		t.Errorf("Equal %v want %v", a.Equal(b), false)
 	}
 }
+*/

@@ -15,57 +15,60 @@
 
 package bitset
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func Example() {
-	s := New(6).Set(2).Set(3).Set(5)
-	for i := 0; i < s.Len(); i++ {
-		fmt.Println(s.Get(i))
-	}
+	// Create new BitSet
+	s := &BitSet{}
+	// Bitsets automatically grow
+	s.Set(2)
+	s.Set(3)
+	fmt.Println(s.Get(0))
+	fmt.Println(s.Get(2))
+	// Out of range Get will return false
+	fmt.Println(s.Get(1000))
+	// Println automatically calls String method
+	fmt.Println(s)
 
+	t := &BitSet{}
+	t.Set(2)
+	t.Set(4)
+	s.Intersect(t)
 	fmt.Println(s)
 
 	// Output:
 	// false
-	// false
-	// true
 	// true
 	// false
-	// true
-	// 001101
-}
-
-func Example_2() {
-	a := New(3).Set(1)
-	b := New(3).Set(0).Set(2)
-	c := a.Clone().Union(b)
-	fmt.Println(a)
-	fmt.Println(b)
-	fmt.Println(c)
-
-	// Output:
-	// 010
-	// 101
-	// 111
+	// 0011
+	// 001
 }
 
 func ExampleBitSet_Union() {
-	a := New(2).Set(0)
-	b := New(4).Set(3)
+	a := &BitSet{}
+	a.Set(0)
+	b := &BitSet{}
+	b.Set(3)
 	fmt.Println(a)
 	fmt.Println(b)
 	a.Union(b)
 	fmt.Println(a)
 
 	// Output:
-	// 10
+	// 1
 	// 0001
 	// 1001
 }
 
 func ExampleBitSet_Intersect() {
-	a := New(4).Set(0).Set(3)
-	b := New(2).Set(0).Set(1)
+	a := &BitSet{}
+	a.Set(0)
+	a.Set(3)
+	b := &BitSet{}
+	b.Set(0)
+	b.Set(1)
 	fmt.Println(a)
 	fmt.Println(b)
 	a.Intersect(b)
@@ -74,41 +77,51 @@ func ExampleBitSet_Intersect() {
 	// Output:
 	// 1001
 	// 11
-	// 10
+	// 1
 }
 
 func ExampleBitSet_Difference() {
-	a := New(3).Set(0).Set(1).Set(2)
-	b := New(2).Set(1)
+	a := &BitSet{}
+	a.Set(0)
+	a.Set(1)
+	a.Set(2)
+	b := &BitSet{}
+	b.Set(1)
+	fmt.Println(a)
+	fmt.Println(b)
 	a.Difference(b)
 	fmt.Println(a)
 
 	// Output:
+	// 111
+	// 01
 	// 101
 }
 
 func ExampleBitSet_SymmetricDifference() {
-	a := New(2).Set(0).Set(1)
-	b := New(3).Set(0).Set(2)
+	a := &BitSet{}
+	a.Set(0)
+	a.Set(1)
+	b := &BitSet{}
+	b.Set(0)
+	b.Set(2)
+	fmt.Println(a)
+	fmt.Println(b)
 	a.SymmetricDifference(b)
 	fmt.Println(a)
 
 	// Output:
+	// 11
+	// 101
 	// 011
 }
 
-func ExampleBitSet_ToggleAll() {
-	a := New(3).Set(1).ToggleAll()
-	fmt.Println(a)
-
-	// Output:
-	// 101
-}
-
 func ExampleBitSet_String() {
-	a := New(3).Set(1)
+	a := &BitSet{}
+	a.Set(0)
+	a.Set(2)
 	fmt.Println(a) // fmt automatically calls String
 
 	// Output:
-	// 010
+	// 101
 }
