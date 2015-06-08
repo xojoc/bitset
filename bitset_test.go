@@ -128,6 +128,56 @@ func TestBitSet_Cardinality(t *testing.T) {
 	}
 }
 
+func TestBitSet_Next(t *testing.T) {
+	a := BitSet{}
+	i, b := a.Next(0)
+	if i != -1 || b != false {
+		t.Errorf("Next %v,%v want %v,%v", i, b, -1, false)
+	}
+
+	a.Set(bpw)
+	i, b = a.Next(0)
+	if i != bpw || b != true {
+		t.Errorf("Next %v,%v want %v,%v", i, b, bpw, true)
+	}
+
+	a.Set(bpw * 2)
+	i, b = a.Next(0)
+	if i != bpw || b != true {
+		t.Errorf("Next %v,%v want %v,%v", i, b, bpw, true)
+	}
+
+	i, b = a.Next(bpw)
+	if i != bpw*2 || b != true {
+		t.Errorf("Next %v,%v want %v,%v", i, b, bpw*2, true)
+	}
+}
+
+func TestBitSet_Prev(t *testing.T) {
+	a := BitSet{}
+	i, b := a.Prev(bpw)
+	if i != -1 || b != false {
+		t.Errorf("Next %v,%v want %v,%v", i, b, -1, false)
+	}
+
+	a.Set(bpw)
+	i, b = a.Prev(bpw * 2)
+	if i != bpw || b != true {
+		t.Errorf("Next %v,%v want %v,%v", i, b, bpw, true)
+	}
+
+	a.Set(bpw * 2)
+	i, b = a.Prev(bpw * 2)
+	if i != bpw || b != true {
+		t.Errorf("Next %v,%v want %v,%v", i, b, bpw, true)
+	}
+
+	i, b = a.Prev(bpw * 3)
+	if i != bpw*2 || b != true {
+		t.Errorf("Next %v,%v want %v,%v", i, b, bpw*2, true)
+	}
+}
+
 func TestBitSet_SuperSet(t *testing.T) {
 	a := &BitSet{}
 	b := &BitSet{}
@@ -148,9 +198,6 @@ func TestBitSet_SuperSet(t *testing.T) {
 	if a.SuperSet(b) != true {
 		t.Errorf("SuperSet %v want %v", a.SuperSet(b), true)
 	}
-}
-
-func TestBitSet_Me(t *testing.T) {
 }
 
 func TestBitSet_Union(t *testing.T) {

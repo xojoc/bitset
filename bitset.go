@@ -40,7 +40,9 @@
 */
 package bitset
 
-// TODO: nextbit prevbit
+// TODO: shift intersects subset first_set first_zero
+// TODO: optimize
+// TODO: fmt.Formatter
 
 // Bit tricks: http://graphics.stanford.edu/~seander/bithacks.html
 
@@ -54,6 +56,7 @@ type BitSet struct {
 
 // FIXME: see if unsafe.SetCap can help reducing memory usage.
 // FIXME: better yet a[l:h:m]
+// FIXME: call autoShrink only when needed
 
 func (s *BitSet) autoShrink() {
 	for i := len(s.v) - 1; i >= 0; i-- {
@@ -194,6 +197,34 @@ func (s *BitSet) Cardinality() int {
 		c += countBits(e)
 	}
 	return c
+}
+
+// Next returns the index of the next bit set after i.
+// Returns true if a bit was found, false otherwise.
+func (s *BitSet) Next(i int) (int, bool) {
+	for j := i + 1; j < s.Len(); j++ {
+		if s.Get(j) {
+			return j, true
+		}
+	}
+
+	// We return -1 so if the client doesn't check
+	// the result it will probably panic.
+	return -1, false
+}
+
+// Prev returns the index of the previous bit set before i.
+// Returns true if a bit was found, false otherwise.
+func (s *BitSet) Prev(i int) (int, bool) {
+	for j := i - 1; j >= 0; j-- {
+		if s.Get(j) {
+			return j, true
+		}
+	}
+
+	// We return -1 so if the client doesn't check
+	// the result it will probably panic.
+	return -1, false
 }
 
 // Equal returns true if a and b have the same bits set, false otherwise.

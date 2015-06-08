@@ -19,17 +19,17 @@ import (
 func main() {
         c := &bitset.BitSet{}
         // Set all prime numbers to true.
-        c.Set(1)
         c.Set(2)
-        c.Set(4)
-        c.Set(6)
-        c.ToggleRange(0,10)
-        for i := 0; i < c.Len(); i++ {
+        c.Set(3)
+        c.Set(5)
+        c.Set(7)
+        c.ToggleRange(1,10+1)
+        for i := 1; i < c.Len(); i++ {
                 if c.Get(i) {
-                        fmt.Printf("%d is composite\n", i+1)
+                        fmt.Printf("%d is composite\n", i)
                 }
         }
-}      
+}
 ```
 Output:
 ```
@@ -48,7 +48,7 @@ see [godoc](http://godoc.org/github.com/xojoc/bitset) for the complete documenta
  * 100% test coverage
  * [Great documentation](http://godoc.org/github.com/xojoc/bitset)
 
-Also see [why xojoc/bitset and not math/big](http://typed.pw/a/29).
+Also see [why use xojoc/bitset and not math/big](http://typed.pw/a/29).
 
 # Who?
 *bitset* was written by Alexandru cojocaru (http://xojoc.pw).
