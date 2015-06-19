@@ -40,8 +40,7 @@
 */
 package bitset
 
-// TODO: shift intersects subset first_set first_zero
-// TODO: optimize
+// TODO: intersects next/prev zero
 // TODO: fmt.Formatter
 
 // Bit tricks: http://graphics.stanford.edu/~seander/bithacks.html
@@ -54,10 +53,10 @@ type BitSet struct {
 	v []uint
 }
 
-// FIXME: see if unsafe.SetCap can help reducing memory usage.
-// FIXME: better yet a[l:h:m]
-// FIXME: call autoShrink only when needed
-
+// All the functions below assume the bitsets in input
+// have no trailing zero bytes. Functions that clear
+// bits (Clear, Toggle, Intersect, Difference, SymmetricDifference)
+// must call this function, which removes all the trailing zero bytes.
 func (s *BitSet) autoShrink() {
 	for i := len(s.v) - 1; i >= 0; i-- {
 		if s.v[i] == 0 {
@@ -66,21 +65,18 @@ func (s *BitSet) autoShrink() {
 			break
 		}
 	}
+	s.v = s.v[:len(s.v):len(s.v)]
 }
 
 // Clone makes a copy of s.
 func (s *BitSet) Clone() *BitSet {
-	s.autoShrink()
 	b := &BitSet{}
-	// TODO: benchmark append
-	b.v = make([]uint, len(s.v))
-	copy(b.v, s.v)
+	b.v = append(b.v, s.v...)
 	return b
 }
 
 // String returns a string representation of s.
 func (s *BitSet) String() string {
-	s.autoShrink()
 	b := make([]byte, s.Len())
 	for i := 0; i < s.Len(); i++ {
 		if s.Get(i) == true {
@@ -94,10 +90,7 @@ func (s *BitSet) String() string {
 
 // Set sets the bit at index i.
 func (s *BitSet) Set(i int) {
-	for (i/bpw + 1) > len(s.v) {
-		// NOTE: len(s.v) may have been decreased by Intersect,
-		// which means that there may be spurious bits after
-		// len(s.v)
+	for i/bpw+1 > len(s.v) {
 		s.v = append(s.v, 0)
 	}
 	s.v[i/bpw] |= 1 << uint(i%bpw)
@@ -116,6 +109,7 @@ func (s *BitSet) Clear(i int) {
 		return
 	}
 	s.v[i/bpw] &= ^(1 << uint(i%bpw))
+	s.autoShrink()
 }
 
 // ClearRange clears the bits between i (included) and j (excluded).
@@ -131,6 +125,7 @@ func (s *BitSet) Toggle(i int) {
 		s.Set(i)
 	} else {
 		s.v[i/bpw] ^= 1 << uint(i%bpw)
+		s.autoShrink()
 	}
 }
 
@@ -151,6 +146,9 @@ func (s *BitSet) Get(i int) bool {
 
 // Len returns the number of bits up to and including the highest bit set.
 func (s *BitSet) Len() int {
+	// NOTE: autoShrink is always called by functions that
+	// set bits to zero, but just to be sure we call
+	// it here anyway.
 	s.autoShrink()
 	if len(s.v) == 0 {
 		return 0
@@ -166,7 +164,6 @@ func (s *BitSet) Len() int {
 
 // Any returns true if any bit is set, false otherwise.
 func (s *BitSet) Any() bool {
-	s.autoShrink()
 	for _, e := range s.v {
 		if e != 0 {
 			return true
@@ -191,7 +188,6 @@ func countBits(e uint) int {
 
 // Cardinality counts the number of set bits.
 func (s *BitSet) Cardinality() int {
-	s.autoShrink()
 	c := 0
 	for _, e := range s.v {
 		c += countBits(e)
@@ -229,12 +225,9 @@ func (s *BitSet) Prev(i int) (int, bool) {
 
 // Equal returns true if a and b have the same bits set, false otherwise.
 func (a *BitSet) Equal(b *BitSet) bool {
-	a.autoShrink()
-	b.autoShrink()
 	if a.Len() != b.Len() {
 		return false
 	}
-	// TODO: bench for e, i :=
 	for i := 0; i < len(a.v); i++ {
 		if a.v[i] != b.v[i] {
 			return false
@@ -245,9 +238,7 @@ func (a *BitSet) Equal(b *BitSet) bool {
 
 // SuperSet returns true if a is a super set of b, false otherwise.
 func (a *BitSet) SuperSet(b *BitSet) bool {
-	a.autoShrink()
-	b.autoShrink()
-	if b.Len() > a.Len() {
+	if a.Len() < b.Len() {
 		return false
 	}
 	for i := 0; i < len(b.v); i++ {
@@ -256,6 +247,36 @@ func (a *BitSet) SuperSet(b *BitSet) bool {
 		}
 	}
 	return true
+}
+
+// SubSet returns true if a is a sub set of b, false otherwise.
+func (a *BitSet) SubSet(b *BitSet) bool {
+	return b.SuperSet(a)
+}
+
+// ShiftLeft moves each bit n positions to the left.
+func (s *BitSet) ShiftLeft(n int) {
+	for i := n; i < s.Len(); i++ {
+		if s.Get(i) {
+			s.Set(i - n)
+		} else {
+			s.Clear(i - n)
+		}
+	}
+	s.ClearRange(s.Len()-n, s.Len())
+}
+
+// ShiftRight moves each bit n positions to the right.
+func (s *BitSet) ShiftRight(n int) {
+	len := s.Len()
+	for i := len - 1; i >= 0; i-- {
+		if s.Get(i) {
+			s.Set(i + n)
+		} else {
+			s.Clear(i + n)
+		}
+	}
+	s.ClearRange(0, n)
 }
 
 // Union stores in a the true bits from either a or b.
@@ -274,14 +295,19 @@ func (a *BitSet) Intersect(b *BitSet) {
 		a.v[i] = a.v[i] & b.v[i]
 	}
 	if len(a.v) > len(b.v) {
+		// FIXME: probably we should clear a.v
 		a.v = a.v[:len(b.v)]
 	}
+	a.autoShrink()
 }
 
 // Difference stores in a the true bits present in a and not in b.
 func (a *BitSet) Difference(b *BitSet) {
 	for i := 0; i < len(a.v) && i < len(b.v); i++ {
 		a.v[i] = a.v[i] & ^b.v[i]
+	}
+	if len(a.v) <= len(b.v) {
+		a.autoShrink()
 	}
 }
 
@@ -291,7 +317,9 @@ func (a *BitSet) SymmetricDifference(b *BitSet) {
 	for i := 0; i < len(a.v) && i < len(b.v); i++ {
 		a.v[i] = a.v[i] ^ b.v[i]
 	}
-	if len(b.v) > len(a.v) {
+	if len(a.v) == len(b.v) {
+		a.autoShrink()
+	} else if len(a.v) < len(b.v) {
 		a.v = append(a.v, b.v[len(a.v):]...)
 	}
 }

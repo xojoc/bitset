@@ -51,7 +51,9 @@ see [godoc](http://godoc.org/github.com/xojoc/bitset) for the complete documenta
 Also see [why use xojoc/bitset and not math/big](http://typed.pw/a/29).
 
 # Who?
-*bitset* was written by Alexandru cojocaru (http://xojoc.pw).
+*bitset* was written by Alexandru Cojocaru (http://xojoc.pw).
 
 # License
 *bitset* is released under the GPLv3 or later, see [COPYING](COPYING).
+
+# [Donate](http://xojoc.pw/donate.html)

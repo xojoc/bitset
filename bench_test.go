@@ -16,10 +16,21 @@
 package bitset
 
 import (
-	_ "math/big"
+	"math/big"
 	"testing"
 )
 
+func Benchmark(b *testing.B) {
+}
+
+func BenchmarkClone(b *testing.B) {
+	s := &BitSet{}
+	s.Set(1000 * 100 * 1000)
+	for n := 0; n < b.N; n++ {
+		n := s.Clone()
+		n.Get(0)
+	}
+}
 func BenchmarkSet(b *testing.B) {
 	len := 1000
 	s := &BitSet{}
@@ -29,8 +40,6 @@ func BenchmarkSet(b *testing.B) {
 		}
 	}
 }
-
-/*
 func BenchmarkSetBig(b *testing.B) {
 	len := 1000
 	s := big.NewInt(0)
@@ -40,19 +49,40 @@ func BenchmarkSetBig(b *testing.B) {
 		}
 	}
 }
-
-func BenchmarkGet(b *testing.B) {
-	s := New(1000)
+func BenchmarkSetHigh(b *testing.B) {
+	s := &BitSet{}
+	i := 1
 	for n := 0; n < b.N; n++ {
-		for i := 0; i < s.Len(); i++ {
+		s.Set(100 * 1000 * 1000 * i)
+		i += 1
+	}
+}
+func BenchmarkSetRange(b *testing.B) {
+	s := &BitSet{}
+	s.SetRange(0, 100*1000*1000)
+}
+func BenchmarkClearRange(b *testing.B) {
+	s := &BitSet{}
+	s.SetRange(0, 100*1000*1000)
+	s.ClearRange(0, 100*1000*1000)
+}
+func BenchmarkToggleRange(b *testing.B) {
+	s := &BitSet{}
+	s.SetRange(50*1000*1000, 100*1000*1000)
+	s.ToggleRange(0, 100*1000*1000)
+}
+func BenchmarkGetEmpty(b *testing.B) {
+	s := &BitSet{}
+	len := 1000 * 1000
+	for n := 0; n < b.N; n++ {
+		for i := 0; i < len; i++ {
 			s.Get(i)
 		}
 	}
 }
-
-func BenchmarkGetBig(b *testing.B) {
-	len := 1000
+func BenchmarkGetEmptyBig(b *testing.B) {
 	s := big.NewInt(0)
+	len := 1000 * 1000
 	s.SetBit(s, len-1, 1)
 	for n := 0; n < b.N; n++ {
 		for i := 0; i < len; i++ {
@@ -61,6 +91,7 @@ func BenchmarkGetBig(b *testing.B) {
 	}
 }
 
+/*
 func BenchmarkUnion(b *testing.B) {
 	a := New(1000)
 	c := New(1000)
