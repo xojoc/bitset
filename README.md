@@ -4,7 +4,7 @@
 # Usage
 First install the library with
 ```
-go get github.com/xojoc/bitset
+go get xojoc.pw/bitset
 ```
 
 As an example let's list all the composite numbers below 10:
@@ -13,7 +13,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/xojoc/bitset"
+	"xojoc.pw/bitset"
 )
 
 func main() {
@@ -40,13 +40,13 @@ Output:
 9 is composite
 10 is composite
 ```
-see [godoc](http://godoc.org/github.com/xojoc/bitset) for the complete documentation.
+see [godoc](http://godoc.org/xojoc.pw/bitset) for the complete documentation.
 
 # Why?
 
  * Great API
  * 100% test coverage
- * [Great documentation](http://godoc.org/github.com/xojoc/bitset)
+ * [Great documentation](http://godoc.org/xojoc.pw/bitset)
 
 Also see [why use xojoc/bitset and not math/big](http://typed.pw/a/29).
 

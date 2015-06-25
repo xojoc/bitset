@@ -38,7 +38,7 @@
  If you wonder why you should use this package and not math/big see:
  http://typed.pw/a/29
 */
-package bitset
+package bitset // import "xojoc.pw/bitset"
 
 // TODO: intersects next/prev zero
 // TODO: fmt.Formatter
