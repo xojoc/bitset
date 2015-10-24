@@ -54,6 +54,6 @@ Also see [why use xojoc/bitset and not math/big](http://typed.pw/a/29).
 *bitset* was written by Alexandru Cojocaru (http://xojoc.pw).
 
 # License
-*bitset* is released under the GPLv3 or later, see [COPYING](COPYING).
+*bitset* is in the Public Domain.
 
 # [Donate](http://xojoc.pw/donate.html)
