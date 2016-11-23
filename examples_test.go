@@ -1,4 +1,4 @@
-// Written by http://xojoc.pw. Public Domain.
+// Written by https://xojoc.pw. Public Domain.
 
 package bitset
 

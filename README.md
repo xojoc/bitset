@@ -1,11 +1,19 @@
 # BitSet data structure
-*bitset* is a library written in [golang](http://golang.org) implementing a BitSet data structure.
+*bitset* is a library written in [golang](https://golang.org) implementing a BitSet data structure.
 
 # Usage
 First install the library with
 ```
 go get xojoc.pw/bitset
 ```
+
+...then run...
+
+````
+go test
+``````
+
+if something fails open an issue.
 
 As an example let's list all the composite numbers below 10:
 ```
@@ -40,20 +48,19 @@ Output:
 9 is composite
 10 is composite
 ```
-see [godoc](http://godoc.org/xojoc.pw/bitset) for the complete documentation.
+see [godoc](https://godoc.org/xojoc.pw/bitset) for the complete documentation.
 
 # Why?
 
- * Great API
- * 100% test coverage
- * [Great documentation](http://godoc.org/xojoc.pw/bitset)
+ * Great and stable API
+ * Lots of tests, [fuzzing](https://github.com/google/gofuzz) and [quicktesting](https://golang.org/pkg/testing/quick/)!
+ * [Good documentation](https://godoc.org/xojoc.pw/bitset) with lots of examples.
 
-Also see [why use xojoc/bitset and not math/big](http://typed.pw/a/29).
+Also see [why use xojoc.pw/bitset and not math/big](https://typed.pw/a/29).
 
 # Who?
-*bitset* was written by Alexandru Cojocaru (http://xojoc.pw).
+*bitset* was written by Alexandru Cojocaru (https://xojoc.pw).
 
 # License
-*bitset* is in the Public Domain.
+*bitset* is [Free Software](https://www.gnu.org/philosophy/free-sw.html) and in the Public Domain. No warranty.
 
-# [Donate](http://xojoc.pw/donate.html)

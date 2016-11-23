@@ -1,30 +1,28 @@
-// Written by http://xojoc.pw. Public Domain.
+// Written by https://xojoc.pw. Public Domain.
 
-/*
- Package bitset implements a BitSet data structure.
-
- A BitSet is a mapping between unsigned integers and boolean values.
- You can Set, Clear, Toggle single bits or Union, Intersect, Difference sets.
-
- Indexes start at 0. Ranges have the first index included and the second
- one excluded (like go slices).
-
- BitSets are dynamicaly-sized they grow and shrink automatically.
-
- All methods modify their receiver in place to avoid futile memory usage.
- If you want to keep the original BitSet simply Clone it.
-
- Use Clone when you want to copy a BitSet. Plese note that this will
- *not* work:
-     var x BitSet
-     x.Add(1)
-     y := x  // wrong! use Clone
-     y.Add(2)
-
-
- If you wonder why you should use this package and not math/big see:
- http://typed.pw/a/29
-*/
+// Package bitset implements a BitSet data structure.
+//
+// A BitSet is a mapping between unsigned integers and boolean values.
+// You can Set, Clear, Toggle single bits or Union, Intersect, Difference sets.
+//
+// Indexes start at 0. Ranges have the first index included and the second
+// one excluded (like go slices).
+//
+// BitSets are dynamicaly-sized they grow and shrink automatically.
+//
+// All methods modify their receiver in place to avoid futile memory usage.
+// If you want to keep the original BitSet simply Clone it.
+//
+// Use Clone when you want to copy a BitSet. Plese note that this will
+// *not* work:
+//     var x BitSet
+//     x.Add(1)
+//     y := x  // wrong! use Clone
+//     y.Add(2)
+//
+//
+// If you wonder why you should use this package and not math/big see:
+// https://typed.pw/a/29
 package bitset // import "xojoc.pw/bitset"
 
 // TODO: intersects next/prev zero
@@ -35,6 +33,7 @@ package bitset // import "xojoc.pw/bitset"
 // Bits per word
 const bpw int = 8 << (^uint(0)>>8&1 + ^uint(0)>>16&1 + ^uint(0)>>32&1)
 
+// BitSet data structure.
 type BitSet struct {
 	// underlying vector
 	v []uint
@@ -56,17 +55,17 @@ func (s *BitSet) autoShrink() {
 }
 
 // Clone makes a copy of s.
-func (s *BitSet) Clone() *BitSet {
-	b := &BitSet{}
-	b.v = append(b.v, s.v...)
-	return b
+func (s BitSet) Clone() *BitSet {
+	t := &BitSet{}
+	t.v = append(t.v, s.v...)
+	return t
 }
 
 // String returns a string representation of s.
-func (s *BitSet) String() string {
+func (s BitSet) String() string {
 	b := make([]byte, s.Len())
 	for i := 0; i < s.Len(); i++ {
-		if s.Get(i) == true {
+		if s.Get(i) {
 			b[i] = '1'
 		} else {
 			b[i] = '0'
@@ -77,6 +76,9 @@ func (s *BitSet) String() string {
 
 // Set sets the bit at index i.
 func (s *BitSet) Set(i int) {
+	if i < 0 {
+		return
+	}
 	for i/bpw+1 > len(s.v) {
 		s.v = append(s.v, 0)
 	}
@@ -85,6 +87,12 @@ func (s *BitSet) Set(i int) {
 
 // SetRange sets the bits between i (included) and j (excluded).
 func (s *BitSet) SetRange(i, j int) {
+	if i < 0 {
+		i = 0
+	}
+	if j < 0 {
+		j = 0
+	}
 	for k := i; k < j; k++ {
 		s.Set(k)
 	}
@@ -92,6 +100,9 @@ func (s *BitSet) SetRange(i, j int) {
 
 // Clear clears the bit at index i.
 func (s *BitSet) Clear(i int) {
+	if i < 0 {
+		return
+	}
 	if (i/bpw + 1) > len(s.v) {
 		return
 	}
@@ -108,6 +119,9 @@ func (s *BitSet) ClearRange(i, j int) {
 
 // Toggle inverts the bit at index i.
 func (s *BitSet) Toggle(i int) {
+	if i < 0 {
+		return
+	}
 	if i/bpw+1 > len(s.v) {
 		s.Set(i)
 	} else {
@@ -123,12 +137,33 @@ func (s *BitSet) ToggleRange(i, j int) {
 	}
 }
 
-// Get gets the bit at index i.
+// Get returns true if the bit at index i is set, false otherwise.
+// If i < 0, returns true.
 func (s *BitSet) Get(i int) bool {
+	if i < 0 {
+		return true
+	}
 	if i/bpw+1 > len(s.v) {
 		return false
 	}
 	return (s.v[i/bpw] & (1 << uint(i%bpw))) != 0
+}
+
+// GetRange returns true if the bits between i (included) and j (excluded) are set, false otherwise.
+// If i < 0 and j < 0 return true.
+func (s *BitSet) GetRange(i, j int) bool {
+	if i < 0 {
+		i = 0
+	}
+	if j < 0 {
+		j = 0
+	}
+	for k := i; k < j; k++ {
+		if !s.Get(k) {
+			return false
+		}
+	}
+	return true
 }
 
 // Len returns the number of bits up to and including the highest bit set.
@@ -159,9 +194,32 @@ func (s *BitSet) Any() bool {
 	return false
 }
 
+// AnyRange returns true if any bit between i (included) and j (excluded) is set, false otherwise.
+// If i < 0 and j < 0 return true.
+func (s *BitSet) AnyRange(i, j int) bool {
+	if i < 0 {
+		i = 0
+	}
+	if j < 0 {
+		j = 0
+	}
+	for k := i; k < j; k++ {
+		if s.Get(k) {
+			return true
+		}
+	}
+	return false
+}
+
 // None returns true if no bit is set, false otherwise.
 func (s *BitSet) None() bool {
 	return !s.Any()
+}
+
+// NoneRange returns true if no bit between i (included) and j (excluded) is set, false otherwise.
+// If i < 0 and j < 0 return true.
+func (s *BitSet) NoneRange(i, j int) bool {
+	return !s.AnyRange(i, j)
 }
 
 func countBits(e uint) int {
@@ -183,62 +241,59 @@ func (s *BitSet) Cardinality() int {
 }
 
 // Next returns the index of the next bit set after i.
-// Returns true if a bit was found, false otherwise.
-func (s *BitSet) Next(i int) (int, bool) {
+// If no bit was found returns -1.
+func (s *BitSet) Next(i int) int {
+	if i < 0 {
+		i = -1
+	}
 	for j := i + 1; j < s.Len(); j++ {
 		if s.Get(j) {
-			return j, true
+			return j
 		}
 	}
-
-	// We return -1 so if the client doesn't check
-	// the result it will probably panic.
-	return -1, false
+	return -1
 }
 
 // Prev returns the index of the previous bit set before i.
-// Returns true if a bit was found, false otherwise.
-func (s *BitSet) Prev(i int) (int, bool) {
+// If no bit was found returns -1.
+func (s *BitSet) Prev(i int) int {
 	for j := i - 1; j >= 0; j-- {
 		if s.Get(j) {
-			return j, true
+			return j
 		}
 	}
-
-	// We return -1 so if the client doesn't check
-	// the result it will probably panic.
-	return -1, false
+	return -1
 }
 
-// Equal returns true if a and b have the same bits set, false otherwise.
-func (a *BitSet) Equal(b *BitSet) bool {
-	if a.Len() != b.Len() {
+// Equal returns true if s and t have the same bits set, false otherwise.
+func (s *BitSet) Equal(t *BitSet) bool {
+	if len(s.v) != len(t.v) {
 		return false
 	}
-	for i := 0; i < len(a.v); i++ {
-		if a.v[i] != b.v[i] {
+	for i, u := range s.v {
+		if u != t.v[i] {
 			return false
 		}
 	}
 	return true
 }
 
-// SuperSet returns true if a is a super set of b, false otherwise.
-func (a *BitSet) SuperSet(b *BitSet) bool {
-	if a.Len() < b.Len() {
+// SuperSet returns true if s is a super set of t, false otherwise.
+func (s *BitSet) SuperSet(t *BitSet) bool {
+	if len(s.v) < len(t.v) {
 		return false
 	}
-	for i := 0; i < len(b.v); i++ {
-		if b.v[i] & ^a.v[i] != 0 {
+	for i := 0; i < len(t.v); i++ {
+		if t.v[i] & ^s.v[i] != 0 {
 			return false
 		}
 	}
 	return true
 }
 
-// SubSet returns true if a is a sub set of b, false otherwise.
-func (a *BitSet) SubSet(b *BitSet) bool {
-	return b.SuperSet(a)
+// SubSet returns true if s is a sub set of t, false otherwise.
+func (s *BitSet) SubSet(t *BitSet) bool {
+	return t.SuperSet(s)
 }
 
 // ShiftLeft moves each bit n positions to the left.
@@ -266,47 +321,47 @@ func (s *BitSet) ShiftRight(n int) {
 	s.ClearRange(0, n)
 }
 
-// Union stores in a the true bits from either a or b.
-func (a *BitSet) Union(b *BitSet) {
-	for i := 0; i < len(a.v) && i < len(b.v); i++ {
-		a.v[i] = a.v[i] | b.v[i]
+// Union stores in a the true bits from either s or t.
+func (s *BitSet) Union(t *BitSet) {
+	for i := 0; i < len(s.v) && i < len(t.v); i++ {
+		s.v[i] = s.v[i] | t.v[i]
 	}
-	if len(b.v) > len(a.v) {
-		a.v = append(a.v, b.v[len(a.v):]...)
+	if len(t.v) > len(s.v) {
+		s.v = append(s.v, t.v[len(s.v):]...)
 	}
 }
 
-// Insersect stores in a the true bits common to both a and b.
-func (a *BitSet) Intersect(b *BitSet) {
-	for i := 0; i < len(a.v) && i < len(b.v); i++ {
-		a.v[i] = a.v[i] & b.v[i]
+// Intersect stores in s the true bits common to both s and t.
+func (s *BitSet) Intersect(t *BitSet) {
+	for i := 0; i < len(s.v) && i < len(t.v); i++ {
+		s.v[i] = s.v[i] & t.v[i]
 	}
-	if len(a.v) > len(b.v) {
+	if len(s.v) > len(t.v) {
 		// FIXME: probably we should clear a.v
-		a.v = a.v[:len(b.v)]
+		s.v = s.v[:len(t.v)]
 	}
-	a.autoShrink()
+	s.autoShrink()
 }
 
-// Difference stores in a the true bits present in a and not in b.
-func (a *BitSet) Difference(b *BitSet) {
-	for i := 0; i < len(a.v) && i < len(b.v); i++ {
-		a.v[i] = a.v[i] & ^b.v[i]
+// Difference stores in s the true bits present in s and not in t.
+func (s *BitSet) Difference(t *BitSet) {
+	for i := 0; i < len(s.v) && i < len(t.v); i++ {
+		s.v[i] = s.v[i] & ^t.v[i]
 	}
-	if len(a.v) <= len(b.v) {
-		a.autoShrink()
+	if len(s.v) <= len(t.v) {
+		s.autoShrink()
 	}
 }
 
-// SymmetricDifference stores in a the true bits which are either
-// in a or in b, but not in both.
-func (a *BitSet) SymmetricDifference(b *BitSet) {
-	for i := 0; i < len(a.v) && i < len(b.v); i++ {
-		a.v[i] = a.v[i] ^ b.v[i]
+// SymmetricDifference stores in s the true bits which are either
+// in s or in t, but not in both.
+func (s *BitSet) SymmetricDifference(t *BitSet) {
+	for i := 0; i < len(s.v) && i < len(t.v); i++ {
+		s.v[i] = s.v[i] ^ t.v[i]
 	}
-	if len(a.v) == len(b.v) {
-		a.autoShrink()
-	} else if len(a.v) < len(b.v) {
-		a.v = append(a.v, b.v[len(a.v):]...)
+	if len(s.v) == len(t.v) {
+		s.autoShrink()
+	} else if len(s.v) < len(t.v) {
+		s.v = append(s.v, t.v[len(s.v):]...)
 	}
 }

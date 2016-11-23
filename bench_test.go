@@ -41,7 +41,7 @@ func BenchmarkSetHigh(b *testing.B) {
 	i := 1
 	for n := 0; n < b.N; n++ {
 		s.Set(100 * 1000 * 1000 * i)
-		i += 1
+		i++
 	}
 }
 func BenchmarkSetRange(b *testing.B) {
