@@ -61,6 +61,8 @@ Also see [why use xojoc.pw/bitset and not math/big](https://typed.pw/a/29).
 # Who?
 *bitset* was written by Alexandru Cojocaru (https://xojoc.pw).
 
+# [Donate!](https://liberapay.com/xojoc)
+
 # License
 *bitset* is [Free Software](https://www.gnu.org/philosophy/free-sw.html) and in the Public Domain. No warranty.
 
